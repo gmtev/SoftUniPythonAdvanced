@@ -4,41 +4,70 @@ numbers = input().split()
 while numbers:
     print(numbers.pop(), end=" ")
 
+# other solution
+numbers = deque(input().split())
+for _ in range(len(numbers)):
+    print(numbers.pop(), end=" ")
+
+# numbers = deque(input() .split())
+# numbers.reverse()
+# print(' '.join(numbers))/print(*numbers)
+
 # stacked queries
 stack = []
-final = []
-N = int(input())
-for i in range(N):
-    command = input().split()
-    if len(command) > 1:
-        stack.append(int(command[1]))
-    elif command[0] == "2":
+for _ in range(int(input())):
+    numbers_given = input().split()
+    command = numbers_given[0]
+    if command == '1':
+        stack.append(numbers_given[1])
+    elif command == '2':
         if stack:
             stack.pop()
-    elif command[0] == "3":
-        stack_num = [int(i) for i in stack]
-        print(max(stack_num))
-    elif command[0] == "4":
-        stack_num = [int(i) for i in stack]
-        print(min(stack_num))
-while stack:
-    final.append(str(stack.pop()))
-print(', '.join(final))
+    elif command == '3':
+        if stack:
+            print(max(stack))
+    elif command == '4':
+        if stack:
+            print(min(stack))
+stack.reverse()
+print(*stack, sep=', ')
+
+# other solution
+stack = []
+map_functions = {
+    '1': lambda x: stack.append(x[1]),
+    '2': lambda x: stack.pop() if stack else None,  # x isn't mandatory here
+    '3': lambda x: print(max(stack)) if stack else None,
+    '4': lambda x: print(min(stack)) if stack else None
+}
+for _ in range(int(input())):
+    numbers_given = input().split()
+    command = numbers_given[0]
+    map_functions[command](numbers_given)
+stack.reverse()
+print(*stack, sep=', ')
 
 # fast food
 food_available = int(input())
-orders = deque(input().split())
-orders_int = [int(i) for i in orders]
-print(max(orders_int))
+orders = deque([int(x) for x in input().split()])
+print(max(orders))
 while orders:
-    current_order = int(orders.popleft())
+    current_order = orders.popleft()
     if food_available >= current_order:
         food_available -= current_order
     else:
-        orders.appendleft(str(current_order))
+        print(f"Orders left:", current_order, *orders)
         break
-if orders:
-    print(f"Orders left: {' '.join(orders)}")
+else:
+    print("Orders complete")
+# or with a "for" cycle
+for order in orders.copy():
+    if food_available >= order:
+        orders.popleft()
+        food_available -= order
+    else:
+        print(f"Orders left:", *orders)
+        break
 else:
     print("Orders complete")
 
@@ -59,28 +88,52 @@ while clothes:
         racks += 1
         current_capacity = capacity
         current_capacity -= current
+#   else:
+#       racks += 1
+#       current_capacity = capacity - current
 print(racks)
 
 # truck tour
-amount_of_pumps = int(input())
-for pumps in range(amount_of_pumps):
-    info = input().split()
-    petrol, distance = int(info[0]), int(info[1])
-
+pumps_data = deque([[int(x) for x in input().split()] for _ in range(int(input()))])  # return a list of numbers on each iteration
+# for _ in range(int(input)):
+#   pumps_data.append([int(x) for x in input().split()]
+pumps_data_copy = pumps_data.copy()
+gas_in_tank = 0
+index = 0
+while pumps_data_copy:
+    petrol, distance = pumps_data_copy.popleft()
+    gas_in_tank += petrol
+    if gas_in_tank >= distance:
+        gas_in_tank -= distance
+    else:
+        pumps_data.rotate(-1)
+        pumps_data_copy = pumps_data.copy()
+        index += 1
+        gas_in_tank = 0
+print(index)
 
 
 # balanced parentheses
 sequence = deque(input())
-balanced = True
-while sequence:
-    left = sequence.popleft()
-    right = sequence.pop()
-    if left == '(' and right == ")" or left == "{" and right == "}" or left == "[" and right == "]" and len(sequence) % 2 == 0:
-        continue
-    else:
-        balanced = False
+opening_brackets = "([{"
+closing_brackets = ")]}"
+counter = 0
+
+while sequence and counter < len(sequence) / 2:
+    if sequence[0] not in opening_brackets:
         break
-if balanced:
-    print("YES")
-else:
+    index = opening_brackets.index(sequence[0])
+    if sequence[1] == closing_brackets[index]:
+        sequence.popleft()
+        sequence.popleft()
+        sequence.rotate(counter)
+        counter = 0
+    else:
+        sequence.rotate(-1)
+        counter += 1
+if sequence:
     print("NO")
+else:
+    print("YES")
+
+# robotics
